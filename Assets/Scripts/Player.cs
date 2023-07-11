@@ -87,7 +87,7 @@ public class Player : MonoBehaviour
         // 공격 코드 작성
         yield return new WaitForSeconds(0.5f);
         isAttack = false;
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.7f);
     }
 
     void Jump()
