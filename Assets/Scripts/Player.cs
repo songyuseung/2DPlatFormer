@@ -10,17 +10,30 @@ public class Player : MonoBehaviour
     Animator anim;
     SpriteRenderer sr;
 
+    private float hAxis;
+
     [SerializeField, Header("Speed")]
     private float WalkSpeed;
     [SerializeField]
     private float RunSpeed;
+    [SerializeField]
+    private float DashSpeed;
+    private float Speed;
+
     [SerializeField, Header("Jump")]
     private float JumpForce;
 
+    private const float Double_Click_Time = .2f;
+    private float lastClickTime;
+
     private bool FirstGame = true;
 
-    private float h;
-    private float Speed;
+    private bool isDash;
+    private bool ReadyDash = true;
+    private float DashTime;
+    private float DashCool;
+    private float DefaultDashCoolTime = 3;
+
     private bool isGround;
     private bool isAttack;
 
@@ -42,18 +55,19 @@ public class Player : MonoBehaviour
                 Move();
             Jump();
             Anim();
+            DashClick();
         }
     }
 
     void Anim()
     {
         anim.SetBool("Fisrt", FirstGame);
-        anim.SetBool("IsMoving", h != 0);
+        anim.SetBool("IsMoving", hAxis != 0);
         anim.SetBool("Grounded", isGround);
         
-        if (h < 0)
+        if (hAxis < 0)
             sr.flipX = false;
-        else if (h > 0)
+        else if (hAxis > 0)
             sr.flipX = true;
     }
 
@@ -64,9 +78,9 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        h = Input.GetAxisRaw("Horizontal");
+        hAxis = Input.GetAxisRaw("Horizontal");
 
-        rigid.velocity = new Vector2(h * Speed, rigid.velocity.y);
+        rigid.velocity = new Vector2(hAxis * Speed, rigid.velocity.y);
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
             Speed = RunSpeed;
@@ -98,6 +112,55 @@ public class Player : MonoBehaviour
             isGround = false;
             anim.SetTrigger("DoJump");
         }        
+    }
+
+    void DashClick()
+    {
+        if (hAxis != 0)
+        {
+            float timeSinceLastClick = Time.time - lastClickTime;
+
+            if (timeSinceLastClick <= Double_Click_Time)
+            {
+                // Double Click
+                if (ReadyDash)
+                {
+                    isDash = true;
+                    ReadyDash = false;
+                }
+            }
+            else
+            {
+                // Normal Click
+                Speed = WalkSpeed;
+            }
+
+            lastClickTime = Time.time;
+        }
+
+        if (!ReadyDash)
+        {
+            DashCool += Time.deltaTime;
+            ReadyDash = DashCool >= DefaultDashCoolTime;
+        }
+        
+        if (DashTime <= 0)
+        {
+            Speed = WalkSpeed;
+
+            if (isDash)
+            {
+                DashTime = 0.1f;
+            }
+        }
+        else
+        {
+            DashTime -= Time.deltaTime;
+            Speed = DashSpeed;
+            ReadyDash = false;
+        }
+
+        isDash = false;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

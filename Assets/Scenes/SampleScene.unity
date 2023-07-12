@@ -453,6 +453,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WalkSpeed: 3
   RunSpeed: 6
+  DashSpeed: 15
   JumpForce: 7
 --- !u!70 &1378957136
 CapsuleCollider2D:
