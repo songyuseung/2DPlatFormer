@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 
@@ -9,6 +10,9 @@ public class Player : MonoBehaviour
     Rigidbody2D rigid;
     Animator anim;
     SpriteRenderer sr;
+    PlayerHealth playerHealth;
+    CircleCollider2D weaponPos;
+    MonsterSet monster;
 
     private float hAxis;
 
@@ -23,8 +27,8 @@ public class Player : MonoBehaviour
     [SerializeField, Header("Jump")]
     private float JumpForce;
 
-    private const float Double_Click_Time = .2f;
-    private float lastClickTime;
+    private const float tapSpeed = .3f;
+    private float lastTapTime = 0;
 
     private bool FirstGame = true;
 
@@ -40,16 +44,23 @@ public class Player : MonoBehaviour
     void Start()
     {
         Speed = WalkSpeed;
+
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
+        playerHealth = GetComponent<PlayerHealth>();
+        weaponPos = GetComponentInChildren<CircleCollider2D>();
+        monster = GetComponent<MonsterSet>();
+
+        weaponPos.enabled = false;
+
         Invoke("First", 1);
         Anim();
     }
 
     void Update()
     {
-        if (!FirstGame)
+        if (!FirstGame) 
         {
             if (!isAttack)
                 Move();
@@ -99,9 +110,11 @@ public class Player : MonoBehaviour
     IEnumerator Attack()
     {
         // 공격 코드 작성
+        weaponPos.enabled = true;
         yield return new WaitForSeconds(0.5f);
         isAttack = false;
         yield return new WaitForSeconds(0.7f);
+        weaponPos.enabled = false;
     }
 
     void Jump()
@@ -116,26 +129,21 @@ public class Player : MonoBehaviour
 
     void DashClick()
     {
-        if (hAxis != 0)
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
         {
-            float timeSinceLastClick = Time.time - lastClickTime;
+            float timeSinceLastClick = Time.time - lastTapTime;
 
-            if (timeSinceLastClick <= Double_Click_Time)
+            if ((Time.time - lastTapTime) < tapSpeed)
             {
                 // Double Click
                 if (ReadyDash)
                 {
-                    isDash = true;
                     ReadyDash = false;
+                    isDash = true;
                 }
             }
-            else
-            {
-                // Normal Click
-                Speed = WalkSpeed;
-            }
 
-            lastClickTime = Time.time;
+            lastTapTime = Time.time;
         }
 
         if (!ReadyDash)
@@ -143,7 +151,7 @@ public class Player : MonoBehaviour
             DashCool += Time.deltaTime;
             ReadyDash = DashCool >= DefaultDashCoolTime;
         }
-        
+
         if (DashTime <= 0)
         {
             Speed = WalkSpeed;
@@ -151,6 +159,7 @@ public class Player : MonoBehaviour
             if (isDash)
             {
                 DashTime = 0.1f;
+                DashCool = 0;
             }
         }
         else
@@ -170,5 +179,9 @@ public class Player : MonoBehaviour
             isGround = true;
         }
         
+        if (collision.gameObject.CompareTag("Monster"))
+        {
+            playerHealth.TakeDamage(10);
+        }
     }
 }
