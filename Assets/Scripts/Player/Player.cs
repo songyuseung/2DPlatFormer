@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Threading;
 using UnityEngine;
@@ -10,12 +11,16 @@ public class Player : MonoBehaviour
     Rigidbody2D rigid;
     Animator anim;
     SpriteRenderer sr;
-    PlayerHealth playerHealth;
     CircleCollider2D weaponPos;
+    TrailRenderer trail;
+    [SerializeField]
     MonsterSet monster;
 
     private float hAxis;
 
+    [SerializeField, Header("HP")]
+    private float PlayerMaxHP;
+    private float PlayerHP;
     [SerializeField, Header("Speed")]
     private float WalkSpeed;
     [SerializeField]
@@ -26,6 +31,9 @@ public class Player : MonoBehaviour
 
     [SerializeField, Header("Jump")]
     private float JumpForce;
+
+    [field: SerializeField, Header("Weapon")]
+    public float WeaponDamage { get; private set; }
 
     private const float tapSpeed = .3f;
     private float lastTapTime = 0;
@@ -48,11 +56,11 @@ public class Player : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
-        playerHealth = GetComponent<PlayerHealth>();
         weaponPos = GetComponentInChildren<CircleCollider2D>();
+        trail = GetComponentInChildren<TrailRenderer>();
         monster = GetComponent<MonsterSet>();
 
-        weaponPos.enabled = false;
+        trail.enabled = false;
 
         Invoke("First", 1);
         Anim();
@@ -66,7 +74,21 @@ public class Player : MonoBehaviour
                 Move();
             Jump();
             Anim();
-            DashClick();
+            //DashInput();
+        }
+    }
+
+    /// <summary>
+    /// Player한테 입힐 데미지
+    /// </summary>
+    /// <param name="Damage"></param>
+    public void TakeDamage(float Damage)
+    {
+        PlayerHP -= Damage;
+
+        if (PlayerHP <= 0)
+        {
+            Destroy(gameObject);
         }
     }
 
@@ -127,17 +149,36 @@ public class Player : MonoBehaviour
         }        
     }
 
-    void DashClick()
+    /*
+    void DashInput()
     {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.A))
         {
-            float timeSinceLastClick = Time.time - lastTapTime;
+            float L_timeSinceLastClick = Time.time - lastTapTime;
 
             if ((Time.time - lastTapTime) < tapSpeed)
             {
                 // Double Click
                 if (ReadyDash)
                 {
+                    Debug.Log("A Double");
+                    ReadyDash = false;
+                    isDash = true;
+                }
+            }
+
+            lastTapTime = Time.time;
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            float R_timeSinceLastClick = Time.time - lastTapTime;
+
+            if ((Time.time - lastTapTime) < tapSpeed)
+            {
+                // Double Click
+                if (ReadyDash)
+                {
+                    Debug.Log("D Double");
                     ReadyDash = false;
                     isDash = true;
                 }
@@ -155,22 +196,24 @@ public class Player : MonoBehaviour
         if (DashTime <= 0)
         {
             Speed = WalkSpeed;
+            trail.enabled = false;
 
             if (isDash)
             {
                 DashTime = 0.1f;
                 DashCool = 0;
-            }
+            }   
         }
         else
         {
+            trail.enabled = true;
             DashTime -= Time.deltaTime;
             Speed = DashSpeed;
             ReadyDash = false;
         }
 
         isDash = false;
-    }
+    } */
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -178,10 +221,15 @@ public class Player : MonoBehaviour
         {
             isGround = true;
         }
-        
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
         if (collision.gameObject.CompareTag("Monster"))
         {
-            playerHealth.TakeDamage(10);
+            monster = collision.gameObject.GetComponent<MonsterSet>();
+            monster.TakeDamage(WeaponDamage);
+            monster.isHit = true;
         }
     }
 }
