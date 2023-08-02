@@ -36,7 +36,8 @@ public class Player : MonoBehaviour
     public float WeaponDamage { get; private set; }
 
     private const float tapSpeed = .3f;
-    private float lastTapTime = 0;
+    private float L_lastTapTime = 0;
+    private float R_lastTapTime = 0;
 
     private bool FirstGame = true;
 
@@ -74,7 +75,7 @@ public class Player : MonoBehaviour
                 Move();
             Jump();
             Anim();
-            //DashInput();
+            DashInput();
         }
     }
 
@@ -149,14 +150,13 @@ public class Player : MonoBehaviour
         }        
     }
 
-    /*
     void DashInput()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            float L_timeSinceLastClick = Time.time - lastTapTime;
+            float L_timeSinceLastClick = Time.time - L_lastTapTime;
 
-            if ((Time.time - lastTapTime) < tapSpeed)
+            if ((Time.time - L_lastTapTime) < tapSpeed)
             {
                 // Double Click
                 if (ReadyDash)
@@ -167,13 +167,13 @@ public class Player : MonoBehaviour
                 }
             }
 
-            lastTapTime = Time.time;
+            L_lastTapTime = Time.time;
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            float R_timeSinceLastClick = Time.time - lastTapTime;
+            float R_timeSinceLastClick = Time.time - R_lastTapTime;
 
-            if ((Time.time - lastTapTime) < tapSpeed)
+            if ((Time.time - R_lastTapTime) < tapSpeed)
             {
                 // Double Click
                 if (ReadyDash)
@@ -184,7 +184,7 @@ public class Player : MonoBehaviour
                 }
             }
 
-            lastTapTime = Time.time;
+            R_lastTapTime = Time.time;
         }
 
         if (!ReadyDash)
@@ -213,7 +213,7 @@ public class Player : MonoBehaviour
         }
 
         isDash = false;
-    } */
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
