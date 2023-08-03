@@ -154,7 +154,7 @@ public class Player : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            float L_timeSinceLastClick = Time.time - L_lastTapTime;
+            float timeSinceLastClick = Time.time - L_lastTapTime;
 
             if ((Time.time - L_lastTapTime) < tapSpeed)
             {
@@ -171,7 +171,7 @@ public class Player : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            float R_timeSinceLastClick = Time.time - R_lastTapTime;
+            float timeSinceLastClick = Time.time - R_lastTapTime;
 
             if ((Time.time - R_lastTapTime) < tapSpeed)
             {

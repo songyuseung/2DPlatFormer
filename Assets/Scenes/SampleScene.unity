@@ -867,7 +867,7 @@ GameObject:
   - component: {fileID: 1787851575}
   - component: {fileID: 1787851577}
   - component: {fileID: 1787851578}
-  m_Layer: 0
+  m_Layer: 31
   m_Name: Ground
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -1522,3 +1522,4 @@ MonoBehaviour:
   player: {fileID: 1378957139}
   isHit: 0
   Anim: {fileID: 0}
+  nextMove: 0

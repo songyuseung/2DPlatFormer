@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof (Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class MonsterSet : MonoBehaviour
 {
     
@@ -38,7 +38,7 @@ public class MonsterSet : MonoBehaviour
             if (isHit == true)
             {
                 Anim.SetTrigger("IsHit");
-                isHit = false;
+                isHit = false;  
             }
         }
     }
