@@ -135,7 +135,7 @@ GameObject:
   m_Layer: 0
   m_Name: Dash
   m_TagString: Untagged
-  m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -256,11 +256,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 786505049}
-  - component: {fileID: 786505051}
   m_Layer: 0
   m_Name: WeaponPos
   m_TagString: Weapon
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 4162164826716764455, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -272,48 +271,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 786505048}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.053, y: 0.277, z: 0}
+  m_LocalPosition: {x: -0.6, y: 0.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1378957139}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!58 &786505051
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 786505048}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.4
 --- !u!1 &963967404
 GameObject:
   m_ObjectHideFlags: 0
@@ -550,13 +514,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ece60f577629b904e9697a46df9f9c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monster: {fileID: 1874081168}
-  PlayerMaxHP: 0
+  PlayerMaxHP: 100
+  PlayerHP: 0
   WalkSpeed: 3
   RunSpeed: 6
-  DashSpeed: 20
+  DashSpeed: 60
   JumpForce: 7
-  <WeaponDamage>k__BackingField: 10
+  <WeaponDamage>k__BackingField: 50
+  Pos: {fileID: 786505049}
+  BoxSize: {x: 0.8, y: 1.6}
 --- !u!70 &1378957136
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 
@@ -10,16 +11,13 @@ public class Player : MonoBehaviour
 {
     Rigidbody2D rigid;
     Animator anim;
-    SpriteRenderer sr;
-    CircleCollider2D weaponPos;
     TrailRenderer trail;
-    [SerializeField]
-    MonsterSet monster;
-
+ 
     private float hAxis;
 
     [SerializeField, Header("HP")]
     private float PlayerMaxHP;
+    [SerializeField]
     private float PlayerHP;
     [SerializeField, Header("Speed")]
     private float WalkSpeed;
@@ -34,12 +32,14 @@ public class Player : MonoBehaviour
 
     [field: SerializeField, Header("Weapon")]
     public float WeaponDamage { get; private set; }
+    [SerializeField]
+    private Transform Pos;
+    [SerializeField]
+    private Vector2 BoxSize;
 
     private const float tapSpeed = .3f;
     private float L_lastTapTime = 0;
     private float R_lastTapTime = 0;
-
-    private bool FirstGame = true;
 
     private bool isDash;
     private bool ReadyDash = true;
@@ -52,31 +52,24 @@ public class Player : MonoBehaviour
 
     void Start()
     {
+        PlayerHP = PlayerMaxHP;
+
         Speed = WalkSpeed;
 
         rigid = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        sr = GetComponent<SpriteRenderer>();
-        weaponPos = GetComponentInChildren<CircleCollider2D>();
         trail = GetComponentInChildren<TrailRenderer>();
-        monster = GetComponent<MonsterSet>();
 
         trail.enabled = false;
-
-        Invoke("First", 1);
-        Anim();
     }
 
     void Update()
     {
-        if (!FirstGame) 
-        {
-            if (!isAttack)
-                Move();
-            Jump();
-            Anim();
-            DashInput();
-        }
+        if (!isAttack)
+            InputKey();
+        Jump();
+        Anim();
+        Dash();
     }
 
     /// <summary>
@@ -95,32 +88,27 @@ public class Player : MonoBehaviour
 
     void Anim()
     {
-        anim.SetBool("Fisrt", FirstGame);
         anim.SetBool("IsMoving", hAxis != 0);
-        anim.SetBool("Grounded", isGround);
-        
+
         if (hAxis < 0)
-            sr.flipX = false;
+            this.transform.rotation = Quaternion.Euler(0, 0, 0);
         else if (hAxis > 0)
-            sr.flipX = true;
+            this.transform.rotation = Quaternion.Euler(0, 180, 0);
     }
 
-    void First()
-    {
-        FirstGame = false;
-    }
-
-    void Move()
+    void InputKey()
     {
         hAxis = Input.GetAxisRaw("Horizontal");
 
         rigid.velocity = new Vector2(hAxis * Speed, rigid.velocity.y);
 
+        // 달리기
         if (Input.GetKeyDown(KeyCode.LeftShift))
             Speed = RunSpeed;
         else if (Input.GetKeyUp(KeyCode.LeftShift))
             Speed = WalkSpeed;
 
+        // 공격
         if (Input.GetMouseButtonDown(0) && isGround)
         {
             rigid.velocity = Vector2.zero;
@@ -130,14 +118,27 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(Pos.position, BoxSize);
+    }
+
     IEnumerator Attack()
     {
+        // 공격 Collider 생성
+        Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Pos.position, BoxSize, 0);
+        foreach (Collider2D collider in collider2Ds)
+        {
+            if (collider.tag == "Monster")
+            {
+                collider.GetComponent<MonsterSet>().TakeDamage(WeaponDamage);
+            }
+        }
+
         // 공격 코드 작성
-        weaponPos.enabled = true;
         yield return new WaitForSeconds(0.5f);
         isAttack = false;
-        yield return new WaitForSeconds(0.7f);
-        weaponPos.enabled = false;
     }
 
     void Jump()
@@ -150,7 +151,7 @@ public class Player : MonoBehaviour
         }        
     }
 
-    void DashInput()
+    void Dash()
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
@@ -223,13 +224,4 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.gameObject.CompareTag("Monster"))
-        {
-            monster = collision.gameObject.GetComponent<MonsterSet>();
-            monster.TakeDamage(WeaponDamage);
-            monster.isHit = true;
-        }
-    }
 }

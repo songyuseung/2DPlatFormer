@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Slime : MonsterSet
 {
+    SpriteRenderer spriteRenderer;
+
     [SerializeField]
     private float nextMove;
 
     private void Start()
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         Think();
     }
 
@@ -22,13 +25,23 @@ public class Slime : MonsterSet
 
     private void FixedUpdate()
     {
-        rb.velocity = new Vector2(nextMove, rb.velocity.y);
+        if (!isDead)
+        {
+            KnockBack();
 
-        Vector2 frontVec = new Vector2(rb.position.x + nextMove * 0.5f, rb.position.y);
-        Debug.DrawRay(frontVec, Vector3.down, new Color(0, 1, 0));
-        RaycastHit2D rayhit = Physics2D.Raycast(frontVec, Vector3.down, 1, LayerMask.GetMask("Ground"));
-        if (rayhit.collider == null)
-            Turn();
+            rb.velocity = new Vector2(nextMove, rb.velocity.y);
+
+            Vector2 frontVec = new Vector2(rb.position.x + nextMove * 0.5f, rb.position.y);
+            Debug.DrawRay(frontVec, Vector3.down, new Color(0, 1, 0));
+            RaycastHit2D rayhit = Physics2D.Raycast(frontVec, Vector3.down, 1, LayerMask.GetMask("Ground"));
+            if (rayhit.collider == null)
+                Turn();
+        }
+    }
+
+    void KnockBack()
+    {
+        
     }
 
     void Think()
@@ -42,13 +55,23 @@ public class Slime : MonsterSet
     void Move()
     {
         nextMove = Random.Range(-1, 2);
+        Animate();
     }
 
     void Turn()
     {
         nextMove *= -1;
+        Animate();
 
         CancelInvoke();
         Invoke("Think", 5f);
+    }
+
+    void Animate()
+    {
+        if (nextMove != 0)
+        {
+            spriteRenderer.flipX = nextMove == 1;
+        }
     }
 }

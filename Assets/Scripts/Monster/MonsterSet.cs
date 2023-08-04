@@ -15,7 +15,7 @@ public class MonsterSet : MonoBehaviour
     protected bool isGround = true;
 
     public bool isHit = false;
-    private bool isDead;
+    protected bool isDead;
 
     protected Rigidbody2D rb;
     protected Vector2 movement;
@@ -25,6 +25,8 @@ public class MonsterSet : MonoBehaviour
 
     public void Awake()
     {
+        isDead = false;
+
         rb = GetComponent<Rigidbody2D>();
         BoxCollider = GetComponent<BoxCollider2D>();
         Anim = GetComponent<Animator>();
@@ -50,11 +52,12 @@ public class MonsterSet : MonoBehaviour
     public void TakeDamage(float Damage)
     {
         M_HP -= Damage;
+        isHit = true;
 
         if (M_HP <= 0)
         {
             Anim.SetBool("IsDead", true);
-            isHit = true;
+            isDead = true;
         }
     }
 
@@ -64,6 +67,13 @@ public class MonsterSet : MonoBehaviour
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            playerset.TakeDamage(M_Damage);
+        }
+    }
+    private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
